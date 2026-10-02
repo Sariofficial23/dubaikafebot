@@ -8,6 +8,7 @@ const router = Router();
 router.get('/products', ah(c.getProducts));
 router.get('/banners', ah(c.getBanners));
 router.get('/settings', ah(c.getPublicSettings));
+router.get('/img/:kind/:id', ah(c.getImageFile));
 router.post('/promo/check', ah(c.checkPromo));
 router.post('/orders', telegramAuth, ah(c.createOrder));
 router.get('/orders/my', telegramAuth, ah(c.getMyOrders));

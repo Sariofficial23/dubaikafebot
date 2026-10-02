@@ -3,24 +3,45 @@ import { getSettings } from '../models/settings.model.js';
 import { findActivePromo, calcDiscount, normalizeCode } from '../models/promo.model.js';
 import { upsertUser } from '../models/user.model.js';
 import { notifyCouriers } from '../core/bot.js';
+import { cached, publicImage, getImage } from '../core/cache.js';
 
 const httpError = (status, message) => Object.assign(new Error(message), { status, expose: true });
 
+const loadProducts = () =>
+  cached('products', async () => {
+    const products = await prisma.product.findMany({ orderBy: { id: 'asc' } });
+    return products.map((p) => ({ ...p, image: publicImage('product', p.id, p.image) }));
+  });
+
+const loadBanners = () =>
+  cached('banners', async () => {
+    const banners = await prisma.banner.findMany({
+      where: { active: true },
+      orderBy: [{ sort: 'asc' }, { id: 'asc' }],
+    });
+    return banners.map((b) => ({ ...b, image: publicImage('banner', b.id, b.image) }));
+  });
+
 export async function getProducts(_req, res) {
-  const products = await prisma.product.findMany({ orderBy: { id: 'asc' } });
-  res.json(products);
+  res.json(await loadProducts());
 }
 
 export async function getBanners(_req, res) {
-  const banners = await prisma.banner.findMany({
-    where: { active: true },
-    orderBy: [{ sort: 'asc' }, { id: 'asc' }],
-  });
-  res.json(banners);
+  res.json(await loadBanners());
 }
 
 export async function getPublicSettings(_req, res) {
-  res.json(await getSettings());
+  res.json(await cached('settings', getSettings));
+}
+
+export async function getImageFile(req, res) {
+  const { kind, id } = req.params;
+  if (kind === 'product') await loadProducts();
+  else if (kind === 'banner') await loadBanners();
+  const img = getImage(kind, id);
+  if (!img) return res.status(404).end();
+  res.set('Cache-Control', 'public, max-age=31536000, immutable');
+  res.type(img.type).send(img.buf);
 }
 
 export async function checkPromo(req, res) {
@@ -69,7 +90,7 @@ export async function createOrder(req, res) {
   const phoneNorm = normalizePhone(phone);
   if (!phoneNorm) throw httpError(400, "Telefon raqam noto'g'ri");
 
-  const settings = await getSettings();
+  const settings = await cached('settings', getSettings);
   const promo = promoCode ? await findActivePromo(promoCode) : null;
   if (promoCode && !promo) throw httpError(400, 'Promokod topilmadi');
   const discount = calcDiscount(promo, subtotal);

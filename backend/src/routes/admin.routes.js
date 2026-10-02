@@ -2,9 +2,15 @@ import { Router } from 'express';
 import { ah } from './asyncHandler.js';
 import { adminAuth } from '../middlewares/adminAuth.js';
 import * as a from '../controllers/admin.controller.js';
+import { invalidate } from '../core/cache.js';
 
 const router = Router();
 router.use(adminAuth);
+// Любое изменение в админке сбрасывает кэш меню/баннеров/настроек
+router.use((req, _res, next) => {
+  if (req.method !== 'GET') invalidate();
+  next();
+});
 
 router.get('/ping', a.ping);
 

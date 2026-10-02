@@ -16,8 +16,12 @@ async function request(path, options = {}) {
   return data;
 }
 
-export const getProducts = () => request('/products');
-export const getBanners = () => request('/banners');
+// Картинки с сервера приходят как /api/img/... — добавляем адрес backend
+const withImage = (list) =>
+  list.map((x) => (x.image?.startsWith('/api/') ? { ...x, image: `${BASE}${x.image}` } : x));
+
+export const getProducts = () => request('/products').then(withImage);
+export const getBanners = () => request('/banners').then(withImage);
 export const getSettings = () => request('/settings');
 export const checkPromo = (code, amount) =>
   request('/promo/check', { method: 'POST', body: JSON.stringify({ code, amount }) });
