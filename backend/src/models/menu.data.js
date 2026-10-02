@@ -5,6 +5,19 @@
 // Фото лежат в backend/public/menu/ (вырезаны со снимков меню).
 // Позиции без фото — клиент добавит в админке (Товары → ✏️ → Загрузить фото).
 
+import { readFileSync } from 'fs';
+import crypto from 'crypto';
+
+// Версия файла в ссылке — при замене фото телефоны клиентов загрузят новое
+const photoUrl = (file) => {
+  try {
+    const v = crypto.createHash('md5').update(readFileSync(new URL(`../../public/menu/${file}`, import.meta.url))).digest('hex').slice(0, 8);
+    return `/api/menu-img/${file}?v=${v}`;
+  } catch {
+    return null;
+  }
+};
+
 const PIZZA = 'Pizza';
 const BURGER = 'Burger';
 const LAVASH = 'Lavashlar';
@@ -214,6 +227,7 @@ const PHOTOS = {
   "Bez sosiska xot-dog": "bez-sosiska-xot-dog.jpg",
   "Suyuq lag'mon": "suyuq-lagmon.jpg",
   "Yegercha (nonga)": "yegercha-nonga.jpg",
+  "Yegercha (bulochka)": "yegercha-bulochka.jpg",
   "Lag'mon 0.7 suyuq": "lagmon-0-7-suyuq.jpg",
   "Qovurma lag'mon": "qovurma-lagmon.jpg",
   "Ayrimsay": "ayrimsay.jpg",
@@ -240,5 +254,5 @@ export const MENU = items.map(([category, name, newPrice]) => ({
   newPrice,
   description: '',
   oldPrice: null,
-  image: PHOTOS[name] ? `/api/menu-img/${PHOTOS[name]}` : null,
+  image: PHOTOS[name] ? photoUrl(PHOTOS[name]) : null,
 }));
