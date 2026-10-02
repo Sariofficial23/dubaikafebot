@@ -142,3 +142,7 @@ tr.overdue td { background: #fff3f4; animation: rowpulse 1.6s infinite; }
   .sidebar:not(.collapsed) { position: fixed; z-index: 50; box-shadow: 0 0 40px rgba(0, 0, 0, 0.2); }
   .grid2 { grid-template-columns: 1fr; }
 }
+
+.login-logo { width: 96px; height: 96px; border-radius: 24px; object-fit: cover; box-shadow: 0 10px 24px rgba(20, 40, 70, 0.2); }
+.sb-logo { width: 32px; height: 32px; border-radius: 9px; object-fit: cover; flex-shrink: 0; }
+.sidebar.collapsed .sb-logo { display: none; }

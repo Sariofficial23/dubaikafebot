@@ -18,7 +18,7 @@ export default function Home({ products, banners, loading, onCategory, onOpen })
   return (
     <div className="screen">
       <header className="home-head">
-        <div className="logo-mark"><Icon name="star" size={26} filled stroke={1} /></div>
+        <img src="/logo.jpg" alt="Dubai Kafe" className="logo-img" />
         <div className="grow">
           <div className="muted small">Assalomu alaykum{user?.first_name ? `, ${user.first_name}` : ''}</div>
           <h1 className="title xl">Dubai Kafe</h1>

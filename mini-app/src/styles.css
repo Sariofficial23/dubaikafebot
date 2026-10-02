@@ -88,6 +88,7 @@ img { display: block; }
 
 /* Home */
 .home-head { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
+.logo-img { width: 54px; height: 54px; border-radius: 16px; object-fit: cover; flex-shrink: 0; box-shadow: 0 8px 18px rgba(20, 40, 70, 0.25); }
 .logo-mark {
   width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center; flex-shrink: 0;
   background: var(--red); color: var(--gold-soft); box-shadow: 0 8px 18px rgba(180, 83, 42, 0.28);
@@ -230,6 +231,7 @@ textarea { resize: none; margin-top: 8px; }
 /* Onboarding */
 .onboarding { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px 24px; text-align: center; }
 .onb-icon { width: 140px; height: 150px; display: grid; place-items: center; margin-bottom: 12px; background: var(--red); color: var(--gold-soft); border-radius: 80px 80px 28px 28px; box-shadow: 0 20px 40px rgba(180, 83, 42, 0.3); animation: fade 0.3s ease; }
+.onb-logo { width: 180px; height: 180px; border-radius: 40px; object-fit: cover; margin-bottom: 12px; box-shadow: 0 20px 40px rgba(20, 40, 70, 0.3); animation: fade 0.3s ease; }
 .dots { display: flex; gap: 6px; margin: 12px 0 20px; }
 .dots span { width: 8px; height: 8px; border-radius: 4px; background: #ddd; transition: all 0.2s; }
 .dots span.on { width: 24px; background: var(--red); }

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Icon from '../components/Icon.jsx';
 import { checkPassword, setPassword } from '../api.js';
 
 export default function Login({ onSuccess }) {
@@ -21,7 +20,7 @@ export default function Login({ onSuccess }) {
   return (
     <div className="login">
       <form className="login-card" onSubmit={submit}>
-        <div className="login-icon"><Icon name="lock" size={28} /></div>
+        <img src="/logo.jpg" alt="Dubai Kafe" className="login-logo" />
         <h1>Dubai Kafe</h1>
         <p className="muted">Панель управления</p>
         <input type="password" autoFocus placeholder="Пароль" value={value} onChange={(e) => setValue(e.target.value)} />
