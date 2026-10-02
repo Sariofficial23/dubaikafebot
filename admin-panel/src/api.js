@@ -1,4 +1,7 @@
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+// Фото меню с сервера приходят как /api/... — добавляем адрес backend
+export const imgSrc = (src) => (src?.startsWith('/api/') ? `${BASE}${src}` : src);
 const KEY = 'dk_admin_password';
 
 export const getPassword = () => {

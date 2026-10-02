@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Icon from '../components/Icon.jsx';
 import Modal from '../components/Modal.jsx';
 import ImageInput from '../components/ImageInput.jsx';
-import { api } from '../api.js';
+import { api, imgSrc } from '../api.js';
 import { money } from '../utils.js';
 
 const EMPTY = { name: '', description: '', category: '', newPrice: '', oldPrice: '', image: '' };
@@ -77,7 +77,7 @@ export default function Products() {
       <div className="cards">
         {shown.map((p) => (
           <div key={p.id} className="card product">
-            <div className="product-img">{p.image ? <img src={p.image} alt="" /> : <Icon name="image" size={28} />}</div>
+            <div className="product-img">{p.image ? <img src={imgSrc(p.image)} alt="" /> : <Icon name="image" size={28} />}</div>
             <div className="product-body">
               <div className="muted small">{p.category}</div>
               <b>{p.name}</b>

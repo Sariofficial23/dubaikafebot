@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { fileURLToPath } from 'url';
 import config from './config/default.js';
 import { ensureDatabase } from './database/connection.js';
 import clientRoutes from './routes/client.routes.js';
@@ -13,6 +14,12 @@ process.on('uncaughtException', (err) => console.error('[uncaughtException]', er
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '8mb' }));
+
+// Фото меню из репозитория (backend/public/menu)
+app.use(
+  '/api/menu-img',
+  express.static(fileURLToPath(new URL('../public/menu', import.meta.url)), { maxAge: '30d' })
+);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/admin', adminRoutes);

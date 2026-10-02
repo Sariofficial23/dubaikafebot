@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icon from './Icon.jsx';
 import { fileToCompressedDataUrl } from '../utils.js';
+import { imgSrc } from '../api.js';
 
 export default function ImageInput({ value, onChange }) {
   const [busy, setBusy] = useState(false);
@@ -17,7 +18,7 @@ export default function ImageInput({ value, onChange }) {
   };
   return (
     <div className="image-input">
-      <div className="image-preview">{value ? <img src={value} alt="" /> : <Icon name="image" size={28} />}</div>
+      <div className="image-preview">{value ? <img src={imgSrc(value)} alt="" /> : <Icon name="image" size={28} />}</div>
       <div className="image-actions">
         <label className="btn ghost">
           <Icon name="image" size={16} /> {busy ? 'Сжатие…' : 'Загрузить фото'}

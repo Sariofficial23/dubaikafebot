@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Icon from '../components/Icon.jsx';
 import Modal from '../components/Modal.jsx';
 import ImageInput from '../components/ImageInput.jsx';
-import { api } from '../api.js';
+import { api, imgSrc } from '../api.js';
 
 const COLORS = {
   red: 'linear-gradient(135deg,#e4002b,#ff5a4e)',
@@ -65,7 +65,7 @@ export default function Banners() {
                 {b.subtitle && <div className="small">{b.subtitle}</div>}
                 {b.price && <span className="banner-price">{b.price}</span>}
               </div>
-              {b.image ? <img src={b.image} alt="" /> : b.emoji ? <span className="banner-emoji">{b.emoji}</span> : null}
+              {b.image ? <img src={imgSrc(b.image)} alt="" /> : b.emoji ? <span className="banner-emoji">{b.emoji}</span> : null}
             </div>
             <div className="row-between">
               <label className="toggle"><input type="checkbox" checked={b.active} onChange={() => toggle(b)} /> {b.active ? 'Активна' : 'Скрыта'}</label>
