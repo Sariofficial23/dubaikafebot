@@ -44,6 +44,20 @@ export function startBot() {
 
   bot.on('callback_query', handleCallback);
 
+  // Группа превратилась в супергруппу (например, после назначения бота админом)
+  bot.on('message', (msg) => {
+    if (msg.migrate_to_chat_id && String(msg.chat.id) === courierGroupId) setGroupId(msg.migrate_to_chat_id, 'message');
+  });
+
+  if (courierGroupId) {
+    bot
+      .getChat(courierGroupId)
+      .then((c) => console.log(`👥 Группа курьеров: «${c.title}» (${courierGroupId})`))
+      .catch((e) => console.error(`❌ Группа курьеров ${courierGroupId} недоступна:`, tgError(e)));
+  } else {
+    console.warn('⚠️  COURIER_GROUP_ID не задан — заказы не будут приходить в группу');
+  }
+
   console.log('🤖 Bot started (polling)');
   return bot;
 }
@@ -102,16 +116,57 @@ async function handleCallback(q) {
   }
 }
 
-export async function notifyCouriers(order, user) {
-  if (!bot || !config.courierGroupId) return;
+// ID группы курьеров. Может поменяться, если Telegram превратил группу в супергруппу.
+let courierGroupId = String(config.courierGroupId || '').trim();
+if (courierGroupId === '0') courierGroupId = '';
+
+const tgError = (e) => e?.response?.body?.description || e?.message || String(e);
+
+function setGroupId(newId, reason) {
+  courierGroupId = String(newId);
+  console.warn(`⚠️  Группа курьеров стала супергруппой (${reason}). Новый ID: ${courierGroupId} — обновите COURIER_GROUP_ID на Render!`);
+}
+
+async function sendToGroup(text, options) {
   try {
-    await bot.sendMessage(config.courierGroupId, orderText(order, user), {
+    return await bot.sendMessage(courierGroupId, text, options);
+  } catch (e) {
+    const migrated = e?.response?.body?.parameters?.migrate_to_chat_id;
+    if (!migrated) throw e;
+    setGroupId(migrated, 'migrate_to_chat_id');
+    return bot.sendMessage(courierGroupId, text, options);
+  }
+}
+
+export async function notifyCouriers(order, user) {
+  if (!bot) return console.error('[bot] notifyCouriers: бот не запущен (нет BOT_TOKEN)');
+  if (!courierGroupId) return console.error('[bot] notifyCouriers: COURIER_GROUP_ID не задан');
+  try {
+    await sendToGroup(orderText(order, user), {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
       reply_markup: { inline_keyboard: [[{ text: '✅ Men olaman', callback_data: `take_${order.id}` }]] },
     });
   } catch (e) {
-    console.error('[bot] notifyCouriers', e.message);
+    console.error(`[bot] notifyCouriers → ${courierGroupId}:`, tgError(e));
+  }
+}
+
+// Проверка группы курьеров — для кнопки в админке
+export async function testCourierGroup() {
+  if (!bot) return { ok: false, error: 'Бот не запущен: проверьте BOT_TOKEN на Render' };
+  if (!courierGroupId) return { ok: false, error: 'COURIER_GROUP_ID не задан на Render' };
+  try {
+    const msg = await sendToGroup('✅ Test: bot guruhga xabar yubora oladi', {});
+    const changed = courierGroupId !== String(config.courierGroupId).trim();
+    return {
+      ok: true,
+      chatId: courierGroupId,
+      title: msg.chat.title,
+      warning: changed ? `ID группы изменился. Впишите на Render COURIER_GROUP_ID=${courierGroupId}` : undefined,
+    };
+  } catch (e) {
+    return { ok: false, chatId: courierGroupId, error: tgError(e) };
   }
 }
 

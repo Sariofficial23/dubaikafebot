@@ -32,5 +32,6 @@ router.get('/settings', ah(a.readSettings));
 router.put('/settings', ah(a.writeSettings));
 
 router.post('/seed', ah(a.seedMenu));
+router.post('/test-courier', ah(a.testCourier));
 
 export default router;

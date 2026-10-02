@@ -2,7 +2,7 @@ import { prisma } from '../database/connection.js';
 import { getSettings, saveSettings } from '../models/settings.model.js';
 import { normalizeCode } from '../models/promo.model.js';
 import { MENU } from '../models/menu.data.js';
-import { notifyClient } from '../core/bot.js';
+import { notifyClient, testCourierGroup } from '../core/bot.js';
 
 const ORDER_STATUSES = ['kutilmoqda', 'yetkazildi'];
 const intOrNull = (v) => (v === '' || v === null || v === undefined ? null : Math.round(Number(v)) || 0);
@@ -184,3 +184,5 @@ export const readSettings = async (_req, res) => res.json(await getSettings());
 export const writeSettings = async (req, res) => res.json(await saveSettings(req.body || {}));
 
 export const ping = (_req, res) => res.json({ ok: true });
+
+export const testCourier = async (_req, res) => res.json(await testCourierGroup());

@@ -68,4 +68,5 @@ export const api = {
 
   settings: () => request('/settings'),
   saveSettings: (d) => request('/settings', { method: 'PUT', body: d }),
+  testCourier: () => request('/test-courier', { method: 'POST' }),
 };

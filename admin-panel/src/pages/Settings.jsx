@@ -10,6 +10,16 @@ const FIELDS = [
 export default function Settings() {
   const [form, setForm] = useState(null);
   const [msg, setMsg] = useState('');
+  const [test, setTest] = useState(null);
+
+  const runTest = async () => {
+    setTest({ loading: true });
+    try {
+      setTest(await api.testCourier());
+    } catch (e) {
+      setTest({ ok: false, error: e.message });
+    }
+  };
 
   useEffect(() => {
     api.settings().then(setForm).catch((e) => setMsg(e.message));
@@ -29,6 +39,7 @@ export default function Settings() {
   if (!form) return <div className="muted">{msg || 'Загрузка…'}</div>;
 
   return (
+    <>
     <form className="card settings" onSubmit={save}>
       {FIELDS.map(([key, label, hint]) => (
         <label key={key}>
@@ -42,5 +53,29 @@ export default function Settings() {
         {msg && <span className="muted">{msg}</span>}
       </div>
     </form>
+
+    <div className="card settings" style={{ marginTop: 16 }}>
+      <b>Группа курьеров</b>
+      <span className="muted small">Отправит тестовое сообщение в группу и покажет ошибку, если не получилось</span>
+      <div className="row">
+        <button className="btn ghost" onClick={runTest} disabled={test?.loading}>
+          {test?.loading ? 'Проверка…' : 'Проверить группу курьеров'}
+        </button>
+      </div>
+      {test && !test.loading && (
+        test.ok ? (
+          <div className="green">
+            ✓ Сообщение отправлено в «{test.title}» ({test.chatId})
+            {test.warning && <div className="error">{test.warning}</div>}
+          </div>
+        ) : (
+          <div className="error">
+            ✗ {test.error}
+            {test.chatId && <div className="muted small">COURIER_GROUP_ID = {test.chatId}</div>}
+          </div>
+        )
+      )}
+    </div>
+    </>
   );
 }
