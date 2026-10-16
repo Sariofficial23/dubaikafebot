@@ -2,15 +2,32 @@ import { getInitData } from './telegram.js';
 
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
+// Адрес сервера — показываем на экране ошибки, чтобы было видно, куда ходит мини-апп
+export const API_LABEL = BASE || "VITE_API_URL berilmagan";
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// Бесплатный Render просыпается до ~50 секунд — GET-запросы повторяем
+const RETRY_DELAYS = [3000, 6000, 10000, 15000];
+
 async function request(path, options = {}) {
-  const res = await fetch(`${BASE}/api${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Telegram-Init-Data': getInitData(),
-      ...(options.headers || {}),
-    },
-  });
+  const isGet = !options.method || options.method === 'GET';
+  let res;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      res = await fetch(`${BASE}/api${path}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Telegram-Init-Data': getInitData(),
+          ...(options.headers || {}),
+        },
+      });
+      if (!(isGet && res.status >= 502 && attempt < RETRY_DELAYS.length)) break;
+    } catch {
+      if (!isGet || attempt >= RETRY_DELAYS.length) throw new Error("Server bilan aloqa yo'q");
+    }
+    await sleep(RETRY_DELAYS[attempt]);
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Xatolik yuz berdi');
   return data;

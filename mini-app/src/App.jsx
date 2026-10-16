@@ -6,7 +6,7 @@ import Home from './screens/Home.jsx';
 import Catalog from './screens/Catalog.jsx';
 import Cart from './screens/Cart.jsx';
 import Profile from './screens/Profile.jsx';
-import { getBanners, getProducts, getSettings } from './api.js';
+import { getBanners, getProducts, getSettings, API_LABEL } from './api.js';
 import { DEFAULT_SETTINGS } from './format.js';
 
 const ONB_KEY = 'dk_onboarded';
@@ -71,6 +71,7 @@ export default function App() {
         <div className="empty">
           <p>{error}</p>
           <button className="btn-primary" onClick={load}>Qayta urinish</button>
+          <p className="muted small">Server: {API_LABEL}</p>
         </div>
       ) : (
         <>

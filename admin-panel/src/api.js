@@ -1,6 +1,8 @@
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 // Фото меню с сервера приходят как /api/... — добавляем адрес backend
+export const API_LABEL = BASE || 'адрес не задан (VITE_API_URL)';
+
 export const imgSrc = (src) => (src?.startsWith('/api/') ? `${BASE}${src}` : src);
 const KEY = 'dk_admin_password';
 
@@ -21,24 +23,32 @@ export const setPassword = (p) => {
 let onUnauthorized = () => {};
 export const setUnauthorizedHandler = (fn) => (onUnauthorized = fn);
 
+class NetworkError extends Error {}
+
 async function request(path, { method = 'GET', body, password } = {}) {
-  const res = await fetch(`${BASE}/api/admin${path}`, {
-    method,
-    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': password ?? getPassword() },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  let res;
+  try {
+    res = await fetch(`${BASE}/api/admin${path}`, {
+      method,
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': password ?? getPassword() },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    throw new NetworkError(`Нет связи с сервером: ${API_LABEL}`);
+  }
   const data = await res.json().catch(() => ({}));
   if (res.status === 401 && password === undefined) onUnauthorized();
   if (!res.ok) throw new Error(data.error || `Ошибка ${res.status}`);
   return data;
 }
 
+// Возвращает '' если пароль верный, иначе текст ошибки
 export async function checkPassword(password) {
   try {
     await request('/ping', { password });
-    return true;
-  } catch {
-    return false;
+    return '';
+  } catch (e) {
+    return e instanceof NetworkError ? e.message : 'Неверный пароль';
   }
 }
 

@@ -10,10 +10,11 @@ export default function Login({ onSuccess }) {
     e.preventDefault();
     setBusy(true);
     setError('');
-    if (await checkPassword(value)) {
+    const err = await checkPassword(value);
+    if (!err) {
       setPassword(value);
       onSuccess();
-    } else setError('Неверный пароль');
+    } else setError(err);
     setBusy(false);
   };
 
